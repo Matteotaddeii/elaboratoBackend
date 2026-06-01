@@ -1,0 +1,52 @@
+{% extends 'base.html' %} {% block title %}Catalogo Prodotti -
+TechStore{%endblock %} {% block content %}
+<div class="row">
+  <div class="col-12 mb-4">
+    <h2 class="fw-bold text-center">Il Nostro Catalogo</h2>
+    <p class="text-muted text-center">
+      Esplora i prodotti disponibili nel negozio.
+    </p>
+  </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {% for product in object_list %}
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <span class="badge bg-secondary mb-2">{{ product.category.name }}</span>
+        <h5 class="card-title fw-bold">{{ product.name }}</h5>
+        <p class="card-text text-truncate text-muted">
+          {{ product.description }}
+        </p>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <span class="fs-4 fw-bold text-success">€{{ product.price }}</span>
+          {% if product.stock > 0 %}
+          <span class="badge bg-success">Disponibili: {{ product.stock }}</span>
+          {% else %}
+          <span class="badge bg-danger">Esaurito</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card-footer bg-white border-top-0 pb-3">
+        <div class="d-grid gap-2">
+          <button class="btn btn-primary btn-sm">Vedi Dettaglio</button>
+
+          {% if user.is_authenticated and user.is_manager %}
+          <button class="btn btn-outline-warning btn-sm">
+            Modifica Prodotto (Manager)
+          </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-center py-5">
+    <p class="fs-5 text-muted">
+      Nessun prodotto trovato nel catalogo. Aggiungili dall'admin!
+    </p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
