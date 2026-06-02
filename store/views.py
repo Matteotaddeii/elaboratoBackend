@@ -7,14 +7,49 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages 
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.db.models import Q
 
 class ProductListView(ListView):
     model = Product
     template_name = 'catalogo.html'
     
-    # Mostra solo i prodotti attivi
     def get_queryset(self):
-        return Product.objects.filter(is_active=True)
+        # Inizialmente vede tutti i prodotti
+        queryset = super().get_queryset()
+        
+        # Filtro is_active (default True, gestibile da gestori/superuser)
+        user = self.request.user
+        
+        if user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') == 'store_manager'):
+            active_filter = self.request.GET.get('active_filter', 'active')
+            if active_filter == 'active':
+                queryset = queryset.filter(is_active=True)
+            elif active_filter == 'inactive':
+                queryset = queryset.filter(is_active=False)
+        else:
+            # Clienti vedono solo i prodotti attivi
+            queryset = queryset.filter(is_active=True)
+            
+        # Ricerca per nome o descrizione
+        q = self.request.GET.get('q')
+        if q:
+            queryset = queryset.filter(Q(name__icontains=q) | Q(description__icontains=q))
+            
+        # Filtro per categoria
+        category_id = self.request.GET.get('category')
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+            
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        # Passo l'elenco di tutte le categorie per poterle mostrare nel menu di filtro
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['current_category'] = self.request.GET.get('category')
+        context['search_query'] = self.request.GET.get('q', '')
+        context['active_filter'] = self.request.GET.get('active_filter', 'active')
+        return context
 
 class ProductDetailView(DetailView):
     model = Product

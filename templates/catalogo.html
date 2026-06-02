@@ -11,8 +11,23 @@ TechStore{%endblock %} {% block content %}
 
 {% if user.is_authenticated %}
     {% if user.is_manager or user.is_superuser %}
-    <div class="row mb-3">
-        <div class="col-12 text-end d-flex justify-content-end gap-2">
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-8 d-flex align-items-center gap-3">
+            <span class="fw-bold text-muted small text-uppercase me-1">Filtro Stato:</span>
+            <div class="form-check form-check-inline mb-0">
+                <input class="form-check-input" type="radio" name="active_filter" id="filter_all" value="all" form="filter-form" {% if active_filter == 'all' %}checked{% endif %} onchange="document.getElementById('filter-form').submit()">
+                <label class="form-check-label text-secondary" for="filter_all">Mostra tutti</label>
+            </div>
+            <div class="form-check form-check-inline mb-0">
+                <input class="form-check-input" type="radio" name="active_filter" id="filter_active" value="active" form="filter-form" {% if active_filter == 'active' %}checked{% endif %} onchange="document.getElementById('filter-form').submit()">
+                <label class="form-check-label text-secondary" for="filter_active">Mostra attivi</label>
+            </div>
+            <div class="form-check form-check-inline mb-0">
+                <input class="form-check-input" type="radio" name="active_filter" id="filter_inactive" value="inactive" form="filter-form" {% if active_filter == 'inactive' %}checked{% endif %} onchange="document.getElementById('filter-form').submit()">
+                <label class="form-check-label text-secondary" for="filter_inactive">Mostra non attivi</label>
+            </div>
+        </div>
+        <div class="col-md-4 text-end d-flex justify-content-end gap-2">
             <a href="{% url 'category_create' %}" class="btn btn-outline-success btn-sm shadow-sm d-flex align-items-center gap-1">
                 <i class="bi bi-folder-plus"></i> Nuova Categoria
             </a>
@@ -23,6 +38,37 @@ TechStore{%endblock %} {% block content %}
     </div>
     {% endif %}
 {% endif %}
+
+<div class="card shadow-sm p-3 mb-4 bg-white rounded">
+    <form id="filter-form" method="get" action="{% url 'product_list' %}" class="row g-3 align-items-center">
+        
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-light">Cerca</span>
+                <input type="text" name="q" class="form-control" placeholder="Cerca un prodotto..." value="{{ search_query }}">
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <select name="category" class="form-select">
+                <option value="">Tutte le categorie</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if current_category == cat.id|stringformat:"i" %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100">Filtra</button>
+            {% if search_query or current_category or active_filter and active_filter != 'active' %}
+                <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Reset</a>
+            {% endif %}
+        </div>
+        
+    </form>
+  </div>
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
   {% for product in object_list %}
@@ -65,7 +111,7 @@ TechStore{%endblock %} {% block content %}
   {% empty %}
   <div class="col-12 text-center py-5">
     <p class="fs-5 text-muted">
-      Nessun prodotto trovato nel catalogo. Aggiungili dall'admin!
+      Nessun prodotto trovato nel catalogo.
     </p>
   </div>
   {% endfor %}
