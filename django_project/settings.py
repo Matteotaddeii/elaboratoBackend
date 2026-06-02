@@ -122,3 +122,7 @@ STATIC_URL = 'static/'
 
 # Usare il modello custom al posto di quello di default
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+# Dove reindirizzare dopo il login e il logout
+LOGIN_REDIRECT_URL = 'product_list'
+LOGOUT_REDIRECT_URL = 'product_list'

@@ -38,7 +38,7 @@
             {% endif %}
             <li class="nav-item">
               <form
-                action="{% url 'admin:logout' %}"
+                action="{% url 'logout' %}"
                 method="post"
                 class="d-inline"
               >
@@ -52,8 +52,8 @@
             <li class="nav-item">
               <a
                 class="btn btn-sm btn-outline-light me-2"
-                href="{% url 'admin:index' %}"
-                >Accedi (Admin)</a
+                href="{% url 'login' %}"
+                >Accedi</a
               >
             </li>
             {% endif %}

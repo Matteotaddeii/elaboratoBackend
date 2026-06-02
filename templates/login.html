@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Accedi - TechStore{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="card-title text-center fw-bold mb-4">Accedi al Negozio</h3>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Username</label>
+                        <input type="text" name="username" id="id_username" class="form-control" required placeholder="Inserisci il tuo username">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">Password</label>
+                        <input type="password" name="password" id="id_password" class="form-control" required placeholder="********">
+                    </div>
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger py-2 fs-6" role="alert">
+                            Username o password non corretti!
+                        </div>
+                    {% endif %}
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary">Entra</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
