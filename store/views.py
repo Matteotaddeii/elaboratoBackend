@@ -1,11 +1,12 @@
 from django.views.generic import ListView, DetailView
-from .models import Product, Category
+from .models import Product, Category, Order, OrderItem
 from django.views.generic.edit import UpdateView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages 
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 
 class ProductListView(ListView):
     model = Product
@@ -100,18 +101,50 @@ def checkout(request):
     
     if not cart:
         return redirect('product_list')
-        
+    
+    cart_items = []
+    total_price = 0
+    
+    # Verifico disponibilità prodotti
     for product_id, quantity in cart.items():
-        try:
-            product = Product.objects.get(id=product_id)
-            if product.stock >= quantity:
-                product.stock -= quantity
-                product.save()
-        except Product.DoesNotExist:
-            pass
+        product = get_object_or_404(Product, id=product_id)
+        if product.stock < quantity:
+            messages.error(request, f"Ci dispiace, lo stock di '{product.name}' è cambiato nel frattempo. Rimangono solo {product.stock} pezzi.")
+            return redirect('cart_detail')
+        
+        item_total = product.price * quantity
+        total_price += item_total
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'price': product.price
+        })
+
+    # Creo l'ordine e scalo disponibilità
+    with transaction.atomic():
+        order = Order.objects.create(
+            user=request.user,
+            total_price=total_price,
+            is_completed=False
+        )
+        
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item['product'],
+                quantity=item['quantity'],
+                price=item['price']
+            )
             
+            # Scalo disponibilità
+            product = item['product']
+            product.stock -= item['quantity']
+            product.save()
+
+    # Svuoto il carrello
     request.session['cart'] = {}
-    messages.success(request, "Acquisto simulato con successo!")
+    
+    messages.success(request, f"Acquisto completato con successo! È stato generato l'Ordine #{order.id}.")
     return redirect('product_list')
 
 def aggiungi_uno(request, product_id):
