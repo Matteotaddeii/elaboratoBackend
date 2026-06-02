@@ -191,3 +191,30 @@ def elimina_prodotto(request, product_id):
         messages.success(request, "Prodotto eliminato dal carrello.")
         
     return redirect('cart_detail')
+
+class ManagerDashboardView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Order
+    template_name = 'pannelloGestore.html'
+    context_object_name = 'orders'
+    ordering = ['-id'] 
+
+    # Solo i Manager o i Superuser possono accedere
+    def test_func(self):
+        user = self.request.user
+        return (
+            user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') == 'store_manager')
+        )
+
+@login_required
+def complete_order(request, order_id):
+    user = request.user
+    if not (user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') == 'store_manager')):
+        messages.error(request, "Accesso negato.")
+        return redirect('product_list')
+        
+    order = get_object_or_404(Order, id=order_id)
+    order.is_completed = True
+    order.save()
+    
+    messages.success(request, f"Ordine #{order.id} segnato come completato!")
+    return redirect('manager_dashboard')

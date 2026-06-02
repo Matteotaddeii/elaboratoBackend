@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Pannello Gestore - TechStore{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold m-0">Pannello di Controllo Gestore</h2>
+        </div>
+
+        <div class="card shadow-sm p-4">
+            <h4 class="fw-bold text-secondary mb-3">Riepilogo Ordini Ricevuti</h4>
+            
+            {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID Ordine</th>
+                                <th>Cliente</th>
+                                <th>Data e Ora</th>
+                                <th>Prodotti Acquistati</th>
+                                <th>Totale Incassato</th>
+                                <th>Stato</th>
+                                <th class="text-center">Azione</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                                <tr>
+                                    <td class="fw-bold">#{{ order.id }}</td>
+                                    <td>{{ order.user.username }}</td>
+                                    <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <ul class="list-unstyled mb-0" style="font-size: 0.9rem;">
+                                            {% for item in order.items.all %}
+                                                <li>• {{ item.quantity }}x <span class="fw-semibold">{{ item.product.name }}</span> ({{ item.price }}€/pz)</li>
+                                            {% empty %}
+                                                <li class="text-muted italic">Nessun dettaglio prodotto</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td class="fw-bold text-success">€{{ order.total_price }}</td>
+                                    <td>
+                                        {% if order.is_completed %}
+                                            <span class="badge bg-success fs-7">Completato</span>
+                                        {% else %}
+                                            <span class="badge bg-danger fs-7">In Lavorazione</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if not order.is_completed %}
+                                            <a href="{% url 'complete_order' order.id %}" class="btn btn-sm btn-outline-success shadow-sm">
+                                                Completa Ordine
+                                            </a>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-secondary" disabled>Completato</button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted fs-5">Nessun ordine presente nel database al momento.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

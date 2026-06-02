@@ -32,11 +32,11 @@
                 ></span
               >
             </li>
-            {% if user.is_manager %}
+            {% if user.is_manager or user.is_superuser %}
             <li class="nav-item">
-              <span class="badge bg-warning text-dark me-2"
-                >Pannello Gestore</span
-              >
+              <a class="btn btn-sm btn-warning text-dark fw-bold me-2 shadow-sm" href="{% url 'manager_dashboard' %}">
+                Pannello Gestore
+              </a>
             </li>
             {% endif %}
             <li class="nav-item">
