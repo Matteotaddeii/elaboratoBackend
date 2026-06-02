@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Il tuo Carrello - TechStore{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm p-4 mb-4">
+            <h2 class="fw-bold mb-4">Il tuo Carrello</h2>
+            
+            {% if cart_items %}
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Prodotto</th>
+                                <th>Prezzo</th>
+                                <th>Quantità</th>
+                                <th>Totale</th>
+                                <th>Azione</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                                <tr>
+                                    <td>
+                                        <h6 class="mb-0 fw-bold">{{ item.product.name }}</h6>
+                                        <small class="text-muted">{{ item.product.category.name }}</small>
+                                    </td>
+                                    <td>€{{ item.product.price }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <a href="{% url 'riduci_uno' item.product.id %}" class="btn btn-sm btn-outline-secondary">-</a>
+                                            <span class="mx-3 fw-bold">{{ item.quantity }}</span>
+                                            {% if item.quantity >= item.product.stock %}
+                                                <button class="btn btn-sm btn-outline-secondary" disabled>+</button>
+                                            {% else %}
+                                                <a href="{% url 'aggiungi_uno' item.product.id %}" class="btn btn-sm btn-outline-secondary">+</a>
+                                            {% endif %}
+                                        </div>
+                                        {% if item.quantity >= item.product.stock %}
+                                            <small class="text-danger d-block mt-1" style="font-size: 0.8rem;">Disponibilità massima raggiunta</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="fw-bold text-dark">€{{ item.item_total }}</td>
+                                    <td>
+                                        <a href="{% url 'elimina_prodotto' item.product.id %}" class="btn btn-sm btn-danger">
+                                            Elimina
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <p class="fs-4 text-muted mb-4">Il tuo carrello è vuoto!</p>
+                    <a href="{% url 'product_list' %}" class="btn btn-primary">Torna al Catalogo</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if cart_items %}
+    <div class="col-md-4">
+        <div class="card shadow-sm p-4 bg-light">
+            <h4 class="fw-bold mb-3">Riepilogo Ordine</h4>
+            <hr>
+            <div class="d-flex justify-content-between fs-4 fw-bold mb-4">
+                <span>Totale:</span>
+                <span class="text-success">€{{ total }}</span>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <a href="{% url 'checkout' %}" class="btn btn-success btn-lg shadow-sm">
+                    Conferma e Acquista
+                </a>
+                <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">
+                    Continua lo Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

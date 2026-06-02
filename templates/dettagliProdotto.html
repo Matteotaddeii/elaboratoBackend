@@ -32,7 +32,7 @@
 
         <div class="d-grid gap-2 mt-4">
             {% if product.stock > 0 %}
-                <button class="btn btn-primary btn-lg">Aggiungi al Carrello</button>
+                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary btn-lg shadow-sm">Aggiungi al Carrello</a>
             {% else %}
                 <button class="btn btn-secondary btn-lg" disabled>Non disponibile</button>
             {% endif %}
