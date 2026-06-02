@@ -1,6 +1,6 @@
 from django.views.generic import ListView, DetailView
-from .models import Product
-from django.views.generic.edit import UpdateView
+from .models import Product, Category
+from django.views.generic.edit import UpdateView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 
@@ -27,6 +27,31 @@ class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         user = self.request.user
         return (
-            user.is_superuser or 
-            str(getattr(user, 'role', '')).lower() in ['store_manager']
+            user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') == 'store_manager')
+        )
+
+class ProductCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Product
+    fields = ['name', 'description', 'price', 'stock', 'is_active', 'category']
+    template_name = 'modificaProdotto.html' # Uso stesso form dell'update
+    success_url = reverse_lazy('product_list')
+
+    # Solo i Manager o i Superuser possono accedere
+    def test_func(self):
+        user = self.request.user
+        return (
+            user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') == 'store_manager')
+        )
+
+class CategoryCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Category
+    fields = ['name', 'slug'] 
+    template_name = 'aggiungiCategoria.html'
+    success_url = reverse_lazy('product_list') 
+    
+    # Solo i Manager o i Superuser possono accedere
+    def test_func(self):
+        user = self.request.user
+        return (
+            user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') == 'store_manager')
         )

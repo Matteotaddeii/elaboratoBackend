@@ -15,7 +15,15 @@
             <p class="fs-5">
                 Stato Magazzino: 
                 {% if product.stock > 0 %}
-                    <span class="badge bg-success">Disponibile ({{ product.stock }} pezzi)</span>
+                    {% if user.is_authenticated and user.is_manager or user.is_superuser %}
+                        <span class="badge bg-success">Disponibili: {{ product.stock }} pz</span>
+                    {% else %}
+                        {% if product.stock < 5 %}
+                            <span class="badge bg-warning text-dark">Ultimi articoli rimasti!</span>
+                        {% else %}
+                            <span class="badge bg-success">Disponibile</span>
+                        {% endif %}
+                    {% endif %}
                 {% else %}
                     <span class="badge bg-danger">Esaurito</span>
                 {% endif %}

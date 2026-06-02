@@ -1,25 +1,15 @@
 {% extends 'base.html' %}
 
-{% block title %}Modifica Prodotto - TechStore{% endblock %}
+{% block title %}Nuova Categoria - TechStore{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-4">
-    <div class="col-md-8">
+    <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-body p-4">
-                <h2 class="card-title mb-4">
-                    {% if object %}
-                        Modifica Prodotto
-                    {% else %}
-                        Aggiungi Nuovo Prodotto
-                    {% endif %}
-                </h2>
-
-                {% if object %}
-                    <h5 class="text-muted mb-4">{{ product.name }}</h5>
-                {% endif %}
+                <h2 class="card-title mb-4">Aggiungi Nuova Categoria</h2>
                 
-                <form method="post" enctype="multipart/form-data">
+                <form method="post">
                     {% csrf_token %}
                     
                     {% for field in form %}
@@ -27,7 +17,7 @@
                             <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
                             {{ field }}
                             {% if field.help_text %}
-                                <div class="form-text">{{ field.help_text }}</div>
+                                <div class="form-text text-muted">{{ field.help_text }}</div>
                             {% endif %}
                             {% for error in field.errors %}
                                 <div class="text-danger small">{{ error }}</div>
@@ -36,7 +26,7 @@
                     {% endfor %}
 
                     <div class="mt-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-success">Salva Modifiche</button>
+                        <button type="submit" class="btn btn-success">Crea Categoria</button>
                         <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Annulla</a>
                     </div>
                 </form>
@@ -46,12 +36,8 @@
 </div>
 
 <script>
-    document.querySelectorAll('input, textarea, select').forEach(function(el) {
-        if (el.type !== 'checkbox') {
-            el.classList.add('form-control');
-        } else {
-            el.classList.add('form-check-input');
-        }
+    document.querySelectorAll('input, textarer, select').forEach(function(el) {
+        el.classList.add('form-control');
     });
 </script>
 {% endblock %}
