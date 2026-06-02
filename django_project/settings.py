@@ -126,3 +126,4 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 # Dove reindirizzare dopo il login e il logout
 LOGIN_REDIRECT_URL = 'product_list'
 LOGOUT_REDIRECT_URL = 'product_list'
+LOGIN_URL = 'login'

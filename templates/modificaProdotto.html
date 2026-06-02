@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifica Prodotto - TechStore{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="card-title mb-4">Modifica Prodotto</h2>
+                <h5 class="text-muted mb-4">{{ product.name }}</h5>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-success">Salva Modifiche</button>
+                        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Annulla</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('input, textarea, select').forEach(function(el) {
+        if (el.type !== 'checkbox') {
+            el.classList.add('form-control');
+        } else {
+            el.classList.add('form-check-input');
+        }
+    });
+</script>
+{% endblock %}

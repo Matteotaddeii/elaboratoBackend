@@ -22,10 +22,18 @@ TechStore{%endblock %} {% block content %}
         <div class="d-flex justify-content-between align-items-center mt-3">
           <span class="fs-4 fw-bold text-success">€{{ product.price }}</span>
           {% if product.stock > 0 %}
-          <span class="badge bg-success">Disponibili: {{ product.stock }}</span>
-          {% else %}
-          <span class="badge bg-danger">Esaurito</span>
-          {% endif %}
+            {% if user.is_authenticated and user.is_manager or user.is_superuser %}
+                <span class="badge bg-success">Disponibili: {{ product.stock }} pz</span>
+            {% else %}
+                {% if product.stock < 5 %}
+                    <span class="badge bg-warning text-dark">Ultimi articoli rimasti!</span>
+                {% else %}
+                    <span class="badge bg-success">Disponibile</span>
+                {% endif %}
+            {% endif %}
+        {% else %}
+            <span class="badge bg-danger">Esaurito</span>
+        {% endif %}
         </div>
       </div>
       <div class="card-footer bg-white border-top-0 pb-3">
@@ -33,9 +41,7 @@ TechStore{%endblock %} {% block content %}
           <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm">Vedi Dettaglio</a>
 
           {% if user.is_authenticated and user.is_manager %}
-          <button class="btn btn-outline-warning btn-sm">
-            Modifica Prodotto (Manager)
-          </button>
+          <a href="{% url 'product_edit' product.id %}" class="btn btn-sm btn-warning">Modifica Prodotto</a>
           {% endif %}
         </div>
       </div>
