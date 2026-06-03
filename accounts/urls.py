@@ -10,4 +10,5 @@ urlpatterns = [
     path('profilo/cambia-password/', views.MyPasswordChangeView.as_view(), name='change_password'),
     path('gestione/utenti/', views.manager_users_list, name='manager_users'),
     path('gestione/utenti/<int:user_id>/toggle/', views.toggle_user_status, name='toggle_user_status'),
+    path('gestione/utenti/<int:user_id>/aggiorna-ruolo/', views.update_user_role, name='update_user_role'),
 ]

@@ -45,15 +45,31 @@
                                         {% endif %}
                                     </td>
                                     <td class="text-center">
-                                        {% if u.is_active %}
-                                            <a href="{% url 'toggle_user_status' u.id %}" class="btn btn-sm btn-danger shadow-sm fw-bold">
-                                                Disabilita / Blocca
-                                            </a>
-                                        {% else %}
-                                            <a href="{% url 'toggle_user_status' u.id %}" class="btn btn-sm btn-success shadow-sm fw-bold">
-                                                Riattiva Account
-                                            </a>
-                                        {% endif %}
+                                        <div class="d-flex gap-3 justify-content-center align-items-center">
+        
+                                            <form action="{% url 'update_user_role' u.id %}" method="POST" class="d-flex gap-2 align-items-center m-0">
+                                                {% csrf_token %}
+                                                <select name="role" class="form-select form-select-sm" style="width: auto; min-width: 140px;">
+                                                    <option value="customer" {% if u.role == 'customer' %}selected{% endif %}>Customer</option>
+                                                    <option value="store_manager" {% if u.role == 'store_manager' %}selected{% endif %}>Store Manager</option>
+                                                </select>
+                                                <button type="submit" class="btn btn-sm btn-warning fw-bold text-dark shadow-sm">
+                                                    Salva
+                                                </button>
+                                            </form>
+
+                                            <div class="vr text-muted"></div>
+                                                {% if u.is_active %}
+                                                    <a href="{% url 'toggle_user_status' u.id %}" class="btn btn-sm btn-danger shadow-sm fw-bold">
+                                                        Blocca
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{% url 'toggle_user_status' u.id %}" class="btn btn-sm btn-success shadow-sm fw-bold">
+                                                        Riattiva
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             {% endfor %}
