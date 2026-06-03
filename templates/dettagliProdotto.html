@@ -51,23 +51,49 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h6 class="fw-bold m-0 text-primary">@{{ review.user.username }}</h6>
-                        <span class="text-warning fs-5">
-                            {% if review.rating == 5 %}★★★★★
-                            {% elif review.rating == 4 %}★★★★☆
-                            {% elif review.rating == 3 %}★★★☆☆
-                            {% elif review.rating == 2 %}★★☆☆☆
-                            {% else %}★☆☆☆☆{% endif %}
-                        </span>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-warning fs-5">
+                                {% if review.rating == 5 %}
+                                    ★★★★★
+                                {% elif review.rating == 4 %}
+                                    ★★★★☆
+                                {% elif review.rating == 3 %}
+                                    ★★★☆☆
+                                {% elif review.rating == 2 %}
+                                    ★★☆☆☆
+                                {% else %}
+                                    ★☆☆☆☆
+                                {% endif %}
+                            </span>
+
+                            <div class="ms-2">
+                                {% if user == review.user %}
+                                    <a href="{% url 'edit_review' review.id %}" class="btn btn-sm btn-outline-secondary border-0 px-2 py-0" title="Modifica Recensione">
+                                        Modifica
+                                    </a>
+                                {% endif %}
+
+                                {% if user == review.user or user.role == 'store_manager' or user.is_superuser %}
+                                    <a href="{% url 'delete_review' review.id %}" 
+                                        class="btn btn-sm btn-outline-danger border-0 px-2 py-0 ms-1" 
+                                        onclick="return confirm('Sei sicuro di voler eliminare definitivamente questa recensione dal database?');"
+                                        title="Elimina Recensione">
+                                        Elimina
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                    <p class="card-text mb-1">{{ review.comment }}</p>
-                    <small class="text-muted">{{ review.created_at|date:"d M Y - H:i" }}</small>
+                    <p class="card-text mb-1 text-muted">{{ review.comment }}</p>
+                    <small style="font-size: 0.75rem;" class="text-black-50">{{ review.created_at|date:"d M Y - H:i" }}</small>
                 </div>
             </div>
         {% empty %}
             <div class="alert alert-light text-center border">
-                Nessuna recensione presente. Sii il primo a valutare questo prodotto!
-            </div>
-        {% endfor %}
+        Nessuna recensione presente. Sii il primo a valutare questo prodotto!
+    </div>
+{% endfor %}
     </div>
 
     <div class="col-md-5">
