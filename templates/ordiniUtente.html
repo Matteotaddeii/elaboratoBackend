@@ -45,6 +45,39 @@
                         </tbody>
                     </table>
                 </div>
+                {% if orders.has_other_pages %}
+                    <nav aria-label="Navigazione pagine ordini" class="mt-4">
+                        <ul class="pagination justify-content-center shadow-sm">
+                            {% if orders.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link text-primary fw-bold" href="?page={{ orders.previous_page_number }}">&laquo; Precedente</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link text-muted">&laquo; Precedente</span>
+                                </li>
+                            {% endif %}
+
+                            {% for num in orders.paginator.page_range %}
+                                {% if orders.number == num %}
+                                    <li class="page-item active"><span class="page-link bg-primary border-primary fw-bold">{{ num }}</span></li>
+                                {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                                    <li class="page-item"><a class="page-link text-primary" href="?page={{ num }}">{{ num }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if orders.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link text-primary fw-bold" href="?page={{ orders.next_page_number }}">Successiva &raquo;</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link text-muted">Successiva &raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
             {% else %}
                 <div class="text-center py-5">
                     <p class="text-muted fs-5 mb-3">Non hai ancora effettuato nessun ordine sullo store.</p>

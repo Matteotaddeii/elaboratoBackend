@@ -13,7 +13,7 @@
         <div class="card shadow-sm p-4">
             <h4 class="fw-bold text-secondary mb-3">Utenti Registrati nella Piattaforma</h4>
             
-            {% if users %}
+            {% if page_obj %}
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-dark">
@@ -26,7 +26,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for u in users %}
+                            {% for u in page_obj %}
                                 <tr>
                                     <td class="fw-bold">{{ u.username }}</td>
                                     <td>{{ u.email|default:"- Nessuna Email -" }}</td>
@@ -59,7 +59,42 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    {% if page_obj.has_other_pages %}
+                        <nav aria-label="Navigazione pagine utenti" class="mt-4">
+                            <ul class="pagination justify-content-center shadow-sm">
+                                
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link text-primary fw-bold" href="?page={{ page_obj.previous_page_number }}">&laquo; Precedente</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link text-muted">&laquo; Precedente</span>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active"><span class="page-link bg-primary border-primary fw-bold">{{ num }}</span></li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item"><a class="page-link text-primary" href="?page={{ num }}">{{ num }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link text-primary fw-bold" href="?page={{ page_obj.next_page_number }}">Successiva &raquo;</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link text-muted">Successiva &raquo;</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
                 </div>
+                
             {% else %}
                 <div class="text-center py-5">
                     <p class="text-muted fs-5">Nessun utente registrato nel sistema oltre agli amministratori.</p>

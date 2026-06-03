@@ -8,11 +8,15 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
+from django.core.paginator import Paginator
 from reviews.forms import ReviewForm
 
 class ProductListView(ListView):
     model = Product
     template_name = 'catalogo.html'
+
+    # Impaginazione 6 prodotti per pagina 
+    paginate_by = 6
     
     def get_queryset(self):
         # Inizialmente vede tutti i prodotti
@@ -237,7 +241,8 @@ class ManagerDashboardView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Order
     template_name = 'pannelloGestore.html'
     context_object_name = 'orders'
-    ordering = ['-id'] 
+    ordering = ['-id']
+    paginate_by = 20
 
     # Solo i Manager o i Superuser possono accedere
     def test_func(self):
@@ -263,5 +268,8 @@ def complete_order(request, order_id):
 @login_required
 def userOrders(request):
     # Prendo solo ordini in cui l'utente è l'utente loggato della richiesta
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'ordiniUtente.html', {'orders': orders})
+    orders_list = Order.objects.filter(user=request.user).order_by('-created_at')
+    paginator = Paginator(orders_list, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'ordiniUtente.html', {'orders': page_obj})

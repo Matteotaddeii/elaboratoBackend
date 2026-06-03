@@ -6,6 +6,7 @@ from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from .models import CustomUser
 from .forms import CustomerRegistrationForm, UserProfileForm
+from django.core.paginator import Paginator
 
 
 def register_view(request):
@@ -54,8 +55,12 @@ def manager_users_list(request):
         messages.error(request, "Accesso negato. Non hai i permessi per gestire gli utenti.")
         return redirect('product_list')
         
-    users = CustomUser.objects.filter(is_superuser=False).order_by('username')
-    return render(request, 'gestioneUtenti.html', {'users': users})
+    users_list = CustomUser.objects.filter(is_superuser=False).order_by('username')
+    paginator = Paginator(users_list, 20) 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'gestioneUtenti.html', {'page_obj': page_obj})
 
 
 @login_required

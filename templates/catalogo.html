@@ -116,4 +116,48 @@ TechStore{%endblock %} {% block content %}
   </div>
   {% endfor %}
 </div>
+
+{% if is_paginated %}
+    <nav aria-label="Navigazione pagine" class="mt-5">
+        <ul class="pagination justify-content-center shadow-sm">
+            
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link text-primary fw-bold" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if active_filter %}&active_filter={{ active_filter }}{% endif %}" aria-label="Precedente">
+                        &laquo; Precedente
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link text-muted">&laquo; Precedente</span>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link bg-primary border-primary fw-bold">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link text-primary" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if active_filter %}&active_filter={{ active_filter }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link text-primary fw-bold" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if active_filter %}&active_filter={{ active_filter }}{% endif %}" aria-label="Successiva">
+                        Successiva &raquo;
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link text-muted">Successiva &raquo;</span>
+                </li>
+            {% endif %}
+            
+        </ul>
+    </nav>
+{% endif %}
 {% endblock %}
