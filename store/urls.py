@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ProductListView, ProductDetailView, ProductUpdateView, ProductCreateView, CategoryCreateView, add_to_cart, cart_detail, checkout, aggiungi_uno, riduci_uno, elimina_prodotto, ManagerDashboardView, complete_order, userOrders
+from .views import ProductListView, ProductDetailView, ProductUpdateView, ProductCreateView, CategoryCreateView, add_to_cart, cart_detail, checkout, aggiungi_uno, riduci_uno, elimina_prodotto, ManagerDashboardView, complete_order, userOrders, register_view
 
 urlpatterns = [
     path('', ProductListView.as_view(), name='product_list'),
@@ -16,4 +16,5 @@ urlpatterns = [
     path('gestione/dashboard/', ManagerDashboardView.as_view(), name='manager_dashboard'),
     path('gestione/ordine/<int:order_id>/completa/', complete_order, name='complete_order'),
     path('ordini/', userOrders, name='userOrders'),
+    path('iscrizione/', register_view, name='iscrizione'),
 ]

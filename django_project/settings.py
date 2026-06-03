@@ -127,3 +127,6 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 LOGIN_REDIRECT_URL = 'product_list'
 LOGOUT_REDIRECT_URL = 'product_list'
 LOGIN_URL = 'login'
+
+# Cookie sessione scade appena chiudo il browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

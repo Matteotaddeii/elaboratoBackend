@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
+from .forms import CustomerRegistrationForm
+from django.contrib.auth import login
 
 class ProductListView(ListView):
     model = Product
@@ -259,3 +261,25 @@ def userOrders(request):
     # Prendo solo ordini in cui l'utente è l'utente loggato della richiesta
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'ordiniUtente.html', {'orders': orders})    
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('product_list')
+        
+    if request.method == 'POST':
+        form = CustomerRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            
+            if hasattr(user, 'is_manager'):
+                user.is_manager = False
+                user.save()
+                
+            login(request, user)
+            
+            messages.success(request, f"Registrazione completata! Benvenuto sullo store, {user.username}!")
+            return redirect('product_list')
+    else:
+        form = CustomerRegistrationForm()
+        
+    return render(request, 'iscrizioneUtente.html', {'form': form})
