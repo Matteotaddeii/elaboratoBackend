@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}I Miei Ordini - TechStore{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <h2 class="fw-bold mb-4">Il tuo Storico Ordini</h2>
+
+        <div class="card shadow-sm p-4">
+            {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID Ordine</th>
+                                <th>Data Acquisto</th>
+                                <th>Prodotti</th>
+                                <th>Totale Speso</th>
+                                <th>Stato Spedizione</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                                <tr>
+                                    <td class="fw-bold">#{{ order.id }}</td>
+                                    <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <ul class="list-unstyled mb-0" style="font-size: 0.9rem;">
+                                            {% for item in order.items.all %}
+                                                <li>• {{ item.quantity }}x <span class="fw-semibold">{{ item.product.name }}</span></li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td class="fw-bold text-dark">€{{ order.total_price }}</td>
+                                    <td>
+                                        {% if order.is_completed %}
+                                            <span class="badge bg-success">Spedito / Completato</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">In lavorazione</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted fs-5 mb-3">Non hai ancora effettuato nessun ordine sullo store.</p>
+                    <a href="{% url 'product_list' %}" class="btn btn-primary">Sfoglia il Catalogo</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

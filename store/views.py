@@ -253,3 +253,9 @@ def complete_order(request, order_id):
     
     messages.success(request, f"Ordine #{order.id} segnato come completato!")
     return redirect('manager_dashboard')
+
+@login_required
+def userOrders(request):
+    # Prendo solo ordini in cui l'utente è l'utente loggato della richiesta
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'ordiniUtente.html', {'orders': orders})    
