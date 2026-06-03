@@ -25,7 +25,7 @@ class CustomerRegistrationForm(UserCreationForm):
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
 
-# Modello per la modifica dei dati dell'utente
+# Modello per la modifica dei dati del profilo utente
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
