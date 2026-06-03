@@ -63,12 +63,12 @@
             
             {% if user.is_authenticated %}
             <li class="nav-item">
-              <span class="nav-link text-info"
-                >Ciao, <strong>{{ user.username }}</strong> —
-                <span class="badge bg-secondary"
-                  >{{ user.get_role_display }}</span
-                ></span
-              >
+              <a class="nav-link text-info fw-semibold me-2" href="{% url 'profile' %}">
+                Ciao, {{ user.username }} 
+                <span style="font-size: 0.8rem; font-weight: normal;" class="text-white-50">
+                  ({% if user.is_manager or user.is_superuser %}Manager{% else %}Cliente{% endif %})
+                </span>
+              </a>
             </li>
 
             <span class="vr mx-3 text-white-50 d-none d-lg-inline-block" style="align-self: center; height: 20px;"></span>

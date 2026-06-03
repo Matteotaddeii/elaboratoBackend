@@ -8,8 +8,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
-from .forms import CustomerRegistrationForm
+from .forms import CustomerRegistrationForm, UserProfileForm
 from django.contrib.auth import login
+from django.contrib.auth.views import PasswordChangeView
 
 class ProductListView(ListView):
     model = Product
@@ -283,3 +284,24 @@ def register_view(request):
         form = CustomerRegistrationForm()
         
     return render(request, 'iscrizioneUtente.html', {'form': form})
+
+@login_required
+def profile_view(request):
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Dati del profilo aggiornati con successo!")
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=request.user)
+        
+    return render(request, 'profiloUtente.html', {'form': form})
+
+class MyPasswordChangeView(PasswordChangeView):
+    template_name = 'cambiaPassword.html'
+    success_url = reverse_lazy('profile')
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Password modificata con successo!")
+        return super().form_valid(form)

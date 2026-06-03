@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Il Mio Profilo - TechStore{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow border-0 p-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold m-0">Gestione Profilo</h3>
+                    <span class="badge {% if user.is_manager or user.is_superuser %}bg-warning text-dark{% else %}bg-info text-white{% endif %} fs-6">
+                        Ruolo: {% if user.is_manager or user.is_superuser %}Store Manager{% else %}Cliente{% endif %}
+                    </span>
+                </div>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                            {{ field }}
+                            {% for error in field.errors %}
+                                <div class="text-danger small mt-1">Errore: {{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm">
+                            Salva Modifiche
+                        </button>
+                        <a href="{% url 'change_password' %}" class="btn btn-outline-danger w-100 fw-bold">
+                            Cambia Password
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -16,5 +16,34 @@ class CustomerRegistrationForm(UserCreationForm):
         if 'last_name' in self.fields:
             self.fields['last_name'].required = True
             self.fields['last_name'].label = "Cognome"
+        if 'username' in self.fields:
+            self.fields['username'].required = True
+            self.fields['username'].label = "Username"
+        if 'email' in self.fields:
+            self.fields['email'].required = True
+            self.fields['email'].label = "Email"
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
+# Modello per la modifica dei dati dell'utente
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = ['first_name', 'last_name', 'username', 'email']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'first_name' in self.fields:
+            self.fields['first_name'].required = True
+            self.fields['first_name'].label = "Nome"
+        if 'last_name' in self.fields:
+            self.fields['last_name'].required = True
+            self.fields['last_name'].label = "Cognome"
+        if 'username' in self.fields:
+            self.fields['username'].required = True
+            self.fields['username'].label = "Username"
+        if 'email' in self.fields:
+            self.fields['email'].required = True
+            self.fields['email'].label = "Email"
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
