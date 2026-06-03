@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # App aggiunte
     'accounts',
     'store',
+    'reviews',
 ]
 
 MIDDLEWARE = [

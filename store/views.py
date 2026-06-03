@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
+from reviews.forms import ReviewForm
 
 class ProductListView(ListView):
     model = Product
@@ -55,6 +56,11 @@ class ProductDetailView(DetailView):
     model = Product
     template_name = 'dettagliProdotto.html'
     context_object_name = 'product' 
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['review_form'] = ReviewForm()
+        return context
 
 class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Product
