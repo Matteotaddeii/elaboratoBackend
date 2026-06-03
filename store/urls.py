@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ProductListView, ProductDetailView, ProductUpdateView, ProductCreateView, CategoryCreateView, add_to_cart, cart_detail, checkout, aggiungi_uno, riduci_uno, elimina_prodotto, ManagerDashboardView, complete_order, userOrders, register_view, profile_view, MyPasswordChangeView
+from .views import ProductListView, ProductDetailView, ProductUpdateView, ProductCreateView, CategoryCreateView, add_to_cart, cart_detail, checkout, aggiungi_uno, riduci_uno, elimina_prodotto, ManagerDashboardView, complete_order, userOrders, register_view, profile_view, MyPasswordChangeView, manager_users_list, toggle_user_status
 
 urlpatterns = [
     path('', ProductListView.as_view(), name='product_list'),
@@ -19,4 +19,6 @@ urlpatterns = [
     path('iscrizione/', register_view, name='iscrizione'),
     path('profilo/', profile_view, name='profile'),
     path('profilo/cambia-password/', MyPasswordChangeView.as_view(), name='change_password'),
+    path('gestione/utenti/', manager_users_list, name='manager_users'),
+    path('gestione/utente/<int:user_id>/toggle/', toggle_user_status, name='toggle_user_status'),
 ]

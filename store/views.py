@@ -11,6 +11,7 @@ from django.db.models import Q
 from .forms import CustomerRegistrationForm, UserProfileForm
 from django.contrib.auth import login
 from django.contrib.auth.views import PasswordChangeView
+from accounts.models import CustomUser
 
 class ProductListView(ListView):
     model = Product
@@ -305,3 +306,34 @@ class MyPasswordChangeView(PasswordChangeView):
     def form_valid(self, form):
         messages.success(self.request, "Password modificata con successo!")
         return super().form_valid(form)
+
+@login_required
+def manager_users_list(request):
+    if not (request.user.is_manager() or request.user.is_superuser):
+        messages.error(request, "Accesso negato. Non hai i permessi per gestire gli utenti.")
+        return redirect('product_list')
+        
+    users = CustomUser.objects.filter(is_superuser=False).order_by('username')
+    return render(request, 'gestioneUtenti.html', {'users': users})
+
+@login_required
+def toggle_user_status(request, user_id):
+    if not (request.user.is_manager() or request.user.is_superuser):
+        messages.error(request, "Accesso negato.")
+        return redirect('product_list')
+        
+    user_to_manage = get_object_or_404(CustomUser, id=user_id)
+    
+    if user_to_manage == request.user:
+        messages.error(request, "Non puoi bloccare il tuo stesso account!")
+        return redirect('manager_users')
+        
+    user_to_manage.is_active = not user_to_manage.is_active
+    user_to_manage.save()
+    
+    if user_to_manage.is_active:
+        messages.success(request, f"Utente '{user_to_manage.username}' RIATTIVATO con successo.")
+    else:
+        messages.warning(request, f"Utente '{user_to_manage.username}' BLOCCATO. Non potrà più effettuare il login.")
+        
+    return redirect('manager_users')        

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestione Utenti - TechStore{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold m-0">Controllo Accessi Utenti</h2>
+            <a href="{% url 'manager_dashboard' %}" class="btn btn-outline-secondary btn-sm">Torna agli Ordini</a>
+        </div>
+
+        <div class="card shadow-sm p-4">
+            <h4 class="fw-bold text-secondary mb-3">Utenti Registrati nella Piattaforma</h4>
+            
+            {% if users %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Ruolo</th>
+                                <th>Stato Account</th>
+                                <th class="text-center">Azione</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                                <tr>
+                                    <td class="fw-bold">{{ u.username }}</td>
+                                    <td>{{ u.email|default:"- Nessuna Email -" }}</td>
+                                    <td>
+                                        {% if u.is_manager %}
+                                            <span class="badge bg-warning text-dark">Store Manager</span>
+                                        {% else %}
+                                            <span class="badge bg-info text-white">Customer</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if u.is_active %}
+                                            <span class="badge bg-success">Attivo (Può Loggarsi)</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Bloccato (Accesso Negato)</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if u.is_active %}
+                                            <a href="{% url 'toggle_user_status' u.id %}" class="btn btn-sm btn-danger shadow-sm fw-bold">
+                                                Disabilita / Blocca
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'toggle_user_status' u.id %}" class="btn btn-sm btn-success shadow-sm fw-bold">
+                                                Riattiva Account
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted fs-5">Nessun utente registrato nel sistema oltre agli amministratori.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
