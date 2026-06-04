@@ -5,10 +5,12 @@ class CustomUser(AbstractUser):
     # Definiamo le costanti per i ruoli richiesti dalla traccia
     CUSTOMER = 'customer'
     STORE_MANAGER = 'store_manager'
+    WAREHOUSE_WORKER = 'warehouse_worker'
     
     ROLE_CHOICES = [
         (CUSTOMER, 'Customer'),
         (STORE_MANAGER, 'Store Manager'),
+        (WAREHOUSE_WORKER, 'Warehouse Worker'),
     ]
     
     # Campo personalizzato per salvare il ruolo nel database
@@ -21,3 +23,6 @@ class CustomUser(AbstractUser):
 
     def is_manager(self):
         return self.role == self.STORE_MANAGER
+
+    def is_warehouse(self):
+        return self.role == self.WAREHOUSE_WORKER

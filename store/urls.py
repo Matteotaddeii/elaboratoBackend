@@ -5,6 +5,7 @@ from .views import (
     add_to_cart, cart_detail, checkout,
     aggiungi_uno, riduci_uno, elimina_prodotto,
     ManagerDashboardView, complete_order, userOrders,
+    warehouse_dashboard, warehouse_ship_order, warehouse_update_stock,
 )
 
 urlpatterns = [
@@ -22,4 +23,7 @@ urlpatterns = [
     path('gestione/dashboard/', ManagerDashboardView.as_view(), name='manager_dashboard'),
     path('gestione/ordine/<int:order_id>/completa/', complete_order, name='complete_order'),
     path('ordini/', userOrders, name='userOrders'),
+    path('magazzino/', warehouse_dashboard, name='warehouse_dashboard'),
+    path('magazzino/ordine/<int:order_id>/spedisci/', warehouse_ship_order, name='warehouse_ship_order'),
+    path('magazzino/prodotto/<int:product_id>/update-stock/', warehouse_update_stock, name='warehouse_update_stock'),
 ]

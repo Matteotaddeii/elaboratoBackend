@@ -9,8 +9,8 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3 class="fw-bold m-0">Gestione Profilo</h3>
-                    <span class="badge {% if user.is_manager or user.is_superuser %}bg-warning text-dark{% else %}bg-info text-white{% endif %} fs-6">
-                        Ruolo: {% if user.is_manager or user.is_superuser %}Store Manager{% else %}Cliente{% endif %}
+                    <span class="badge {% if user.is_manager or user.is_superuser %}bg-warning text-dark{% elif user.is_warehouse %}bg-success text-white{% else %}bg-info text-white{% endif %} fs-6">
+                        Ruolo: {% if user.is_manager or user.is_superuser %}Store Manager{% elif user.is_warehouse %}Magazziniere{% else %}Cliente{% endif %}
                     </span>
                 </div>
                 

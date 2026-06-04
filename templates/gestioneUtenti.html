@@ -31,8 +31,10 @@
                                     <td class="fw-bold">{{ u.username }}</td>
                                     <td>{{ u.email|default:"- Nessuna Email -" }}</td>
                                     <td>
-                                        {% if u.is_manager %}
+                                        {% if u.role == 'store_manager' or u.is_manager %}
                                             <span class="badge bg-warning text-dark">Store Manager</span>
+                                        {% elif u.role == 'warehouse_worker' %}
+                                            <span class="badge bg-secondary text-white" style="background-color: #6c757d;">Warehouse</span>
                                         {% else %}
                                             <span class="badge bg-info text-white">Customer</span>
                                         {% endif %}
@@ -52,6 +54,7 @@
                                                 <select name="role" class="form-select form-select-sm" style="width: auto; min-width: 140px;">
                                                     <option value="customer" {% if u.role == 'customer' %}selected{% endif %}>Customer</option>
                                                     <option value="store_manager" {% if u.role == 'store_manager' %}selected{% endif %}>Store Manager</option>
+                                                    <option value="warehouse_worker" {% if u.role == 'warehouse_worker' %}selected{% endif %}>Warehouse</option>
                                                 </select>
                                                 <button type="submit" class="btn btn-sm btn-warning fw-bold text-dark shadow-sm">
                                                     Salva
@@ -69,7 +72,6 @@
                                                     </a>
                                                 {% endif %}
                                             </div>
-                                        </div>
                                     </td>
                                 </tr>
                             {% endfor %}

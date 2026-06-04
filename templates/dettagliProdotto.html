@@ -15,7 +15,7 @@
             <p class="fs-5">
                 Stato Magazzino: 
                 {% if product.stock > 0 %}
-                    {% if user.is_authenticated and user.is_manager or user.is_superuser %}
+                    {% if user.is_manager or user.is_warehouse or user.is_superuser %}
                         <span class="badge bg-success">Disponibili: {{ product.stock }} pz</span>
                     {% else %}
                         {% if product.stock < 5 %}

@@ -100,7 +100,7 @@ def update_user_role(request, user_id):
     if request.method == 'POST':
         selected_role = request.POST.get('role')
         
-        valid_roles = ['customer', 'store_manager']
+        valid_roles = ['customer', 'store_manager', 'warehouse_worker']
         
         if selected_role in valid_roles:
             user_to_modify.role = selected_role

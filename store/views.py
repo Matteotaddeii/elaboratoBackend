@@ -25,7 +25,7 @@ class ProductListView(ListView):
         # Filtro is_active (default True, gestibile da gestori/superuser)
         user = self.request.user
         
-        if user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') == 'store_manager'):
+        if user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') in ['store_manager', 'warehouse_worker']):
             active_filter = self.request.GET.get('active_filter', 'active')
             if active_filter == 'active':
                 queryset = queryset.filter(is_active=True)
@@ -72,11 +72,11 @@ class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = 'modificaProdotto.html'
     success_url = reverse_lazy('product_list')
 
-    # Solo i Manager o i Superuser possono accedere
+    # Solo i Manager, i Magazzinieri o i Superuser possono accedere
     def test_func(self):
         user = self.request.user
         return (
-            user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') == 'store_manager')
+            user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') in ['store_manager', 'warehouse_worker'])
         )
 
 class ProductCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
@@ -85,11 +85,11 @@ class ProductCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     template_name = 'modificaProdotto.html' # Uso stesso form dell'update
     success_url = reverse_lazy('product_list')
 
-    # Solo i Manager o i Superuser possono accedere
+    # Solo i Manager, i Magazzinieri o i Superuser possono accedere
     def test_func(self):
         user = self.request.user
         return (
-            user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') == 'store_manager')
+            user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') in ['store_manager', 'warehouse_worker'])
         )
 
 class CategoryCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
@@ -98,11 +98,11 @@ class CategoryCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     template_name = 'aggiungiCategoria.html'
     success_url = reverse_lazy('product_list') 
     
-    # Solo i Manager o i Superuser possono accedere
+    # Solo i Manager, i Magazzinieri o i Superuser possono accedere
     def test_func(self):
         user = self.request.user
         return (
-            user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') == 'store_manager')
+            user.is_superuser or (user.is_authenticated and getattr(user, 'role', '') in ['store_manager', 'warehouse_worker'])
         )
 
 def add_to_cart(request, product_id):
@@ -260,6 +260,7 @@ def complete_order(request, order_id):
         
     order = get_object_or_404(Order, id=order_id)
     order.is_completed = True
+    order.status = 'shipped'
     order.save()
     
     messages.success(request, f"Ordine #{order.id} segnato come completato!")
@@ -273,3 +274,52 @@ def userOrders(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'ordiniUtente.html', {'orders': page_obj})
+
+@login_required
+def warehouse_dashboard(request):
+    if getattr(request.user, 'role', '') != 'warehouse_worker' and not request.user.is_superuser:
+        messages.error(request, "Accesso negato. Questa dashboard è riservata alla logistica.")
+        return redirect('product_list')
+        
+    orders_to_ship = Order.objects.filter(status__in=['pending', 'processing']).order_by('created_at')
+    
+    products = Product.objects.all().order_by('name')
+    
+    return render(request, 'gestioneMagazzino.html', {
+        'orders': orders_to_ship,
+        'products': products
+    })
+
+@login_required
+def warehouse_ship_order(request, order_id):
+    if getattr(request.user, 'role', '') != 'warehouse_worker' and not request.user.is_superuser:
+        messages.error(request, "Accesso negato.")
+        return redirect('product_list')
+        
+    order = get_object_or_404(Order, id=order_id)
+    order.status = 'shipped'
+    order.is_completed = True
+    order.save()
+    
+    messages.success(request, f"Ordine #{order.id} contrassegnato come SPEDITO correttamente!")
+    return redirect('warehouse_dashboard')
+
+@login_required
+def warehouse_update_stock(request, product_id):
+    if getattr(request.user, 'role', '') != 'warehouse_worker' and not request.user.is_superuser:
+        messages.error(request, "Accesso negato.")
+        return redirect('product_list')
+        
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        new_stock = request.POST.get('stock')
+        is_active = request.POST.get('is_active') == 'true'
+        
+        if new_stock is not None:
+            product.stock = int(new_stock)
+            product.is_active = is_active
+            product.save()
+            messages.success(request, f"Stock del prodotto '{product.name}' aggiornato.")
+            
+    return redirect('warehouse_dashboard')    
