@@ -22,10 +22,14 @@
 Di seguito si evidenziano le corrispondenze tra i requisiti obbligatori e l'implementazione:
 
 *   **Architettura dell'applicazione:** Il progetto è suddiviso in applicazioni Django (`accounts`, `store`, `reviews`).
+*   **Interfaccia Frontend:** I template HTML5 estendono un `base.html` comune e utilizzano **Bootstrap 5.3** per il layout responsive e la stilizzazione dei componenti (navbar, card, form, badge, tabelle). Le icone sono fornite da **Bootstrap Icons 1.11**.
 *   **Estensione del Modello Utente:** È stato implementato un modello utente personalizzato (`CustomUser`) che estende `AbstractUser` di Django per la gestione dei ruoli tramite un campo dedicato.
 *   **Presenza di almeno 3 Ruoli distinti:** Il sistema gestisce i ruoli di **Customer**, **Warehouse Worker** (Magazziniere) e **Store Manager**.
-*   **Controllo degli Accessi e Sicurezza:** I permessi e le restrizioni sono gestiti lato backend tramite una combinazione di **Decoratori** (per le viste a funzione, es. `@login_required`) e **Mixins** di Django (per le viste basate su classi, es. `LoginRequiredMixin` e `UserPassesTestMixin`), impedendo accessi non autorizzati e URL injection.
-*   **Integrità dei Dati e Database:** Le relazioni tra le tabelle utilizzano chiavi esterne (`ForeignKey`) con vincoli di integrità referenziale ben definiti. Inoltre, per garantire la consistenza dei dati, la procedura di checkout e aggiornamento delle scorte del magazzino è stata protetta tramite la direttiva **`transaction.atomic()`** di Django, assicurando transazioni ACID ed evitando incongruenze nel database.
+*   **Viste Basate su Classi:** Il progetto si fa largo uso di generic class-based views di Django. Esempi: `ProductListView(ListView)` per il catalogo con paginazione e filtri, `ProductDetailView(DetailView)` per il dettaglio prodotto, `ProductUpdateView(UpdateView)` e `ProductCreateView(CreateView)` per la gestione del catalogo, `ManagerDashboardView(ListView)` per il pannello finanziario. Tutte le viste riservate allo staff ereditano da `LoginRequiredMixin` e `UserPassesTestMixin`.
+*   **Form e Validazione:** La raccolta e validazione dei dati utente avviene tramite `ModelForm` di Django: `CustomerRegistrationForm` (registrazione pubblica), `UserProfileForm` (modifica profilo) e `ReviewForm` (scrittura/modifica recensioni). La validazione è gestita interamente lato backend e gli errori vengono mostrati inline nel form.
+*   **Autenticazione:** Sono implementati **Login**, **Logout** e **Registrazione pubblica** degli utenti (accessibile all'URL `/registrazione/`). Dopo il login o la registrazione, l'utente viene reindirizzato automaticamente alla pagina richiesta o alla Home.
+*   **Controllo degli Accessi e Sicurezza:** I permessi sono gestiti lato backend tramite **Decoratori** (per le viste a funzione, es. `@login_required`) e **Mixins** di Django (per le viste basate su classi, es. `LoginRequiredMixin` e `UserPassesTestMixin`), impedendo accessi non autorizzati e URL injection.
+*   **Integrità dei Dati e Database:** Le relazioni tra le tabelle utilizzano chiavi esterne (`ForeignKey`) con vincoli di integrità referenziale. La procedura di checkout è protetta tramite **`transaction.atomic()`** di Django, assicurando transazioni ACID ed evitando incongruenze nel database.
 
 ---
 
@@ -59,12 +63,16 @@ Per evitare il sovraccarico del database e garantire tempi di risposta rapidi an
 
 L'applicazione si basa sul controllo degli accessi basato sui ruoli. Tutti gli utenti autenticati del sistema condividono le funzionalità di base dedicate all'acquisto e alla consultazione del catalogo.
 
-### Funzionalità Comuni (Tutti gli utenti autenticati)
-Qualsiasi utente loggato (**Customer**, **Warehouse Worker** o **Store Manager**) può:
+### Funzionalità Accessibili a Tutti (anche utenti non registrati)
 *   Sfogliare il catalogo prodotti, applicare filtri (per categoria e disponibilità) e cercare articoli.
-*   Visualizzare i dettagli dei prodotti e leggerne le recensioni.
-*   Gestire il proprio carrello personale (aggiunta, rimozione e modifica quantità degli articoli).
-*   Effettuare ordini (con decremento atomico delle scorte tramite transazione) e visualizzare lo storico dei propri acquisti personali.
+*   Visualizzare i dettagli dei prodotti e leggerne le recensioni pubbliche.
+*   Aggiungere prodotti al carrello (il carrello è conservato nella sessione anche senza login).
+*   **Registrarsi autonomamente** come nuovo Cliente tramite il form pubblico all'indirizzo `/registrazione/`.
+
+### Funzionalità Comuni (Tutti gli utenti autenticati)
+Qualsiasi utente loggato (**Customer**, **Warehouse Worker** o **Store Manager**) può, in aggiunta a quelle sopra:
+*   Procedere al checkout e finalizzare un ordine (con decremento atomico delle scorte tramite transazione).
+*   Visualizzare lo storico dei propri acquisti personali.
 *   Scrivere, modificare o eliminare le proprie recensioni.
 
 ### Funzionalità Specializzate per Ruolo
@@ -81,6 +89,22 @@ Oltre alle funzionalità comuni, possiede poteri gestionali e di moderazione:
 *   **Riepilogo Finanziario:** Visualizzazione dello storico completo e dello stato di tutti gli ordini del sistema, con evidenza del fatturato totale.
 *   **Gestione Utenti:** Visualizzazione della lista di tutti gli iscritti, con possibilità di bloccare/sbloccare un account e variare dinamicamente il ruolo.
 *   **Moderazione Recensioni:** Possibilità di eliminare dal database le recensioni scritte da qualsiasi altro utente.
+
+---
+
+## Possibili Evoluzioni
+
+Il progetto rappresenta una **base funzionante e completa** per un e-commerce, progettata per coprire i requisiti d'esame e dimostrare conoscenza dei concetti chiave di Django. Sono consapevole, tuttavia, che in un contesto di produzione reale molte funzionalità potrebbero essere ulteriormente affinate e ampliate:
+
+*   **Dashboard del Magazziniere:** La lista degli ordini da evadere e dell'inventario potrebbe beneficiare di filtri aggiuntivi (per stato, per data, per categoria) e di una barra di ricerca dedicata per gestire volumi molto elevati di dati in modo più efficiente.
+*   **Pannello del Manager:** Il riepilogo finanziario potrebbe essere arricchito con grafici e statistiche aggregate oppure filtri per selezionare periodi di tempo.
+*   **Catalogo Prodotti:** Si potrebbero aggiungere ordinamenti multipli (per prezzo crescente/decrescente, per novità).
+*   **Gestione Utenti:** La lista degli iscritti potrebbe includere una barra di ricerca per username o email, utile quando il numero di utenti cresce significativamente.
+*   **Carrello Persistente:** L'attuale carrello basato sulla sessione potrebbe essere sostituito con un modello database dedicato, così da preservare gli articoli anche dopo la chiusura del browser e permettere il ripristino del carrello da dispositivi differenti.
+*   **Sistemi di Pagamento:** L'aggiunta di sistemi di pagamento reali.
+*   **Integrazione Email:** L'aggiunta di sistemi di email per notificare acquisti.
+
+Queste funzionalità non sono state incluse per mantenere il codice semplice e mostrare sopratutto la conoscenza dei requisiti fissati per questo elaborato.
 
 ---
 
