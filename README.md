@@ -2,9 +2,9 @@
 
 **Studente:** Matteo Taddei  
 **Corso:** Progettazione e Produzione Multimediale 2026  
-**Tipologia Progetto:** Full-Stack Web Application usando Django 
-**Link Repository GitHub:** https://github.com/Matteotaddeii/elaboratoBackend 
-**Link di Deployment:**   
+**Tipologia Progetto:** Full-Stack Web Application usando Django  
+**Link Repository GitHub:** https://github.com/Matteotaddeii/elaboratoBackend  
+**Link di Deployment:** https://techstore-taddei.onrender.com
 
 ---
 
@@ -137,20 +137,41 @@ Segui questi passaggi per configurare ed eseguire il progetto in locale:
 ---
 
 ## Scenario di Test
+### 1. Flusso di Acquisto da Anonimo, Login e CRUD Recensioni (Ruolo: Cliente)
+* **Navigazione da Anonimo:** Senza effettuare il login, accedere alla Home del sito, sfogliare il catalogo prodotti e applicare i filtri di ricerca.
+* **Aggiunta al Carrello:** Entrare nella pagina di dettaglio di un prodotto e cliccare su "Aggiungi al carrello". Navigare nel carrello per verificare che l'articolo sia presente anche senza essere autenticati.
+* **Autenticazione in Fase di Checkout:** Cliccare sul pulsante "Procedi al checkout". Il sistema, intercettando l'utente anonimo, lo reindirizzerà automaticamente alla pagina di login. Effettuare l'accesso con l'account demo del Cliente.
+* **Verifica Persistenza e Creazione Ordine:** Una volta loggati l'acquisto si completa automaticamente. Verificare che l'ordine sia stato inserito correttamente nell'area personale, e che le scorte siano state decrementate correttamente (verificabile ispezionando il database).
+* **CRUD Completo (Recensioni):** Tornare sulla pagina dettagli del prodotto appena acquistato per testare il ciclo CRUD sulle recensioni:
+    * *Create*: Compilare il form inserendo una valutazione e un commento.
+    * *Read*: Verificare che la recensione sia visibile pubblicamente.
+    * *Update*: Cliccare su "Modifica", cambiare il testo e salvare.
+    * *Delete*: Cliccare su "Elimina" per rimuoverla fisicamente dal database.
 
-Ecco un breve scenario di test per verificare le funzionalità principali, il CRUD e il sistema di permessi basato sui ruoli:
+### 2. Navigazione e Creazione Ordine (Ruolo: Cliente)
+* **Login:** Accedere alla pagina di login ed effettuare l'accesso con l'account dimostrativo del Cliente.
+* **Navigare:** Dalla pagina Catalogo, sfogliare i prodotti disponibili, applicare i filtri di ricerca e cliccare su un articolo per accedere alla sua pagina di dettaglio.
+* **Creare Dati (Carrello e Ordine):** Aggiungere il prodotto al carrello, modificare la quantità direttamente dall'interfaccia di riepilogo e procedere al checkout. Verificare che l'ordine sia stato inserito correttamente nell'area personale, e che le scorte siano state decrementate correttamente (verificabile ispezionando il database).
+* **CRUD Completo (Recensioni):** Tornare sulla pagina del dettaglio del prodotto appena acquistato per testare il ciclo CRUD sulle recensioni:
+    * *Create*: Compilare il form inserendo una valutazione a stelle e un commento.
+    * *Read*: Verificare che la propria recensione appaia istantaneamente nell'elenco pubblico.
+    * *Update*: Cliccare sul pulsante "Modifica", variare il testo del commento e salvare.
+    * *Delete*: Cliccare sul pulsante "Elimina" per rimuoverla fisicamente dal database.
 
-1. **Login e Creazione Dati (Ruolo: Cliente):**
-   * Andare all'indirizzo `http://127.0.0.1:8000/login` ed effettuare l'accesso con l'account dimostrativo (`cliente` / `Acqu123!`).
-   * **Navigare:** Dalla Home, sfogliare il catalogo e cliccare su un prodotto per vederne i dettagli.
-   * **Creare:** Aggiungere il prodotto al carrello e procedere al checkout per creare un nuovo ordine.
-   * **Verificare:** Visitare la pagina del proprio profilo o dello "Storico Ordini" per assicurarsi che l'ordine sia stato registrato con successo.
+### 3. Evasione Spedizioni e Gestione Inventario (Ruolo: Magazziniere)
+* **Login:** Effettuare il logout e accedere alla pagina di autenticazione con le credenziali dell'Addetto al Magaziono.
+* **Navigare:** Cliccare sul link "Pannello Magazzino" comparso dinamicamente nella barra di navigazione grazie ai controlli condizionali sul ruolo utente.
+* **Modificare (Stato Ordine):** Nella colonna sinistra (Ordini da Evadere), individuare l'ordine creato nel precedente scenario dal cliente. Cliccare sul pulsante "Spedisci Pacco": l'ordine cambierà stato in *Spedito* nel database e scomparirà dalla coda logistica.
+* **Modificare (Stock):** Nella tabella destra (Inventario), individuare un prodotto, incrementare o decrementare il numero di scorte nel campo numerico (`stock`) e premere "Aggiorna".
+* **Verificare:** Effettuare il logout. Navigando nel catalogo anche da utenti non registrati, il prodotto modificato mostrerà la nuova quantità aggiornata in tempo reale, a riprova della corretta persistenza nel database. Viene mostrato come `Disponibile` se le scorte sono maggiori di 5, viene mostrato `Ultimi articoli rimasti` se le scorte sono comprese tra 1 e 5, mentre se le scorte sono 0 viene mostrato come `Esaurito`.
 
-2. **Test dei Permessi (Sicurezza delle Rotte):**
-   * Rimanendo loggato come Cliente, provare a forzare l'accesso inserendo nella barra degli indirizzi l'URL di una pagina riservata allo staff (ad esempio la dashboard del magazziniere o del manager).
-   * **Verificare:** Il sistema negherà l'accesso (mostrando un errore 403 o reindirizzando), dimostrando il corretto funzionamento dei blocchi di sicurezza (`UserPassesTestMixin` e decoratori).
+### 4. Controllo Direzione, Catalogo e Modifica Ruoli (Ruolo: Store Manager)
+* **Login:** Effettuare l'accesso con le credenziali dello Store Manager.
+* **Navigare:** Accedere alla Dashboard Direzionale per ispezionare il riepilogo economico e lo storico di tutti gli ordini complessivi del sistema.
+* **Modificare (Catalogo):** Accedere alla sezione di gestione del catalogo prodotti per crearne uno nuovo o per variare la visibilità logica (`is_active = False`) di un prodotto, testando il meccanismo di Soft Delete per la tutela della coerenza del DB.
+* **Modificare (Controllo Accessi Utenti):** Navigare nella vista "Gestione Utenti". Individuare l'utente `cliente` utilizzato nello Scenario 1. Attraverso il menu a tendina dinamico, selezionare un nuovo ruolo applicativo o cliccare sul pulsante per sospendere l'account (`is_active = False`).
+* **Verificare:** Constatare la comparsa del messaggio di successo del sistema e verificare che i nuovi privilegi applicati all'utente siano immediatamente operativi nel database.
 
-3. **Modifica Dati e Cambio Ruolo (Ruolo: Magazziniere):**
-   * Effettuare il logout e accedere con le credenziali di logistica (`magazziniere` / `Ordini123!`).
-   * **Navigare:** Accedere alla *Dashboard Logistica* riservata al proprio ruolo.
-   * **Modifica/Verifica:** Trovare l'ordine effettuato precedentemente dal cliente e modificarne lo stato contrassegnandolo come "Spedito". Andare poi nel catalogo e modificare la disponibilità (scorte) del prodotto appena venduto, verificando che la modifica si rifletta nel database.
+### 5. Sicurezza, Restrizioni di Accesso e Gestione degli Errori (Test dei Permessi)
+* **Azione:** Dopo essersi loggati con l'account del cliente, tentare un attacco di tipo URL-injection digitando forzatamente nella barra degli indirizzi del browser i percorsi riservati allo staff, come ad esempio la dashboard di logistica (`/magazzino/`) o la gestione utenti del manager (`/gestione/utenti/`).
+* **Verificare il Risultato:** Il backend intercetta la richiesta non autorizzata grazie ai sistemi di protezione e al fatto che l'utente non ha i permessi necessari. L'accesso viene bloccato alla radice: il browser mostrerà una pagina di "Accesso Negato" (errore HTTP 403) o reindirizzerà l'utente mostrando un messaggio di avviso a schermo, provando l'efficacia dei sistemi di sicurezza.
